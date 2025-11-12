@@ -1,104 +1,120 @@
-import React, { useEffect, useState } from 'react';
-import { addGrade, getStudents, getCourses, updateGrade } from '../services/api';
+import { useEffect, useState } from 'react';
+import apiBase from '../api';
 
-export default function GradeForm({ selected, clearSelected, refresh }) {
+export default function GradeForm() {
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [gradeId, setGradeId] = useState('');
-  const [studentId, setStudentId] = useState('');
-  const [courseName, setCourseName] = useState('');
+  const [studentId, setStudentId] = useState(''); // keep as string for the select control
+  const [courseId, setCourseId] = useState('');
   const [score, setScore] = useState('');
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [s, c] = await Promise.all([getStudents(), getCourses()]);
-        setStudents(s || []);
-        setCourses(c || []);
-      } catch (err) {
-        console.error('Load students/courses failed', err);
-      }
-    }
-    load();
+    fetch(`${apiBase}/students`)
+      .then(r => r.json())
+      .then(data => {
+        setStudents(Array.isArray(data) ? data : []);
+      })
+      .catch(err => {
+        console.error('Failed to load students', err);
+        setStudents([]);
+      });
+
+    fetch(`${apiBase}/courses`)
+      .then(r => r.json())
+      .then(data => {
+        setCourses(Array.isArray(data) ? data : []);
+      })
+      .catch(err => {
+        console.error('Failed to load courses', err);
+        setCourses([]);
+      });
   }, []);
 
-  useEffect(() => {
-    if (selected) {
-      setGradeId(selected.id || '');
-      setStudentId(selected.student_id ?? selected.student ?? '');
-      setCourseName(selected.course || '');
-      setScore(selected.score ?? '');
-    } else {
-      setGradeId('');
-      setStudentId('');
-      setCourseName('');
-      setScore('');
-    }
-  }, [selected]);
-
-  const validate = () => {
-    if (!studentId) return 'Select student';
-    if (!courseName) return 'Select course';
-    if (score === '' || isNaN(Number(score))) return 'Enter numeric score';
-    const n = Number(score);
-    if (n < 0 || n > 100) return 'Score must be between 0 and 100';
-    return null;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleAddGrade = async (e) => {
     e.preventDefault();
-    const err = validate();
-    if (err) return alert(err);
-    setSaving(true);
+    if (!studentId || !courseId) {
+      alert('Please select a student and a course.');
+      return;
+    }
+    const payload = {
+      student_id: Number(studentId),
+      course_id: Number(courseId),
+      score: Number(score)
+    };
     try {
-      const payload = { student_id: studentId, course: courseName, score: Number(score) };
-      if (gradeId) {
-        await updateGrade(gradeId, payload);
-      } else {
-        await addGrade(payload);
-      }
-      setGradeId('');
+      const res = await fetch(`${apiBase}/grades`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Add grade failed');
+      // optional: refresh grades list elsewhere in your app
       setStudentId('');
-      setCourseName('');
+      setCourseId('');
       setScore('');
-      clearSelected && clearSelected();
-      refresh && refresh();
     } catch (err) {
-      console.error('Add/update grade failed', err);
-      alert('Failed to save grade');
-    } finally {
-      setSaving(false);
+      console.error(err);
+      alert('Add grade failed');
     }
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <input type="hidden" value={gradeId} readOnly />
-      <label>
-        Student
-        <select value={studentId} onChange={e => setStudentId(e.target.value)}>
-          <option value="">-- select student --</option>
-          {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+    <form onSubmit={handleAddGrade}>
+      <div>
+        <label htmlFor="student">Student</label>
+        <select
+          id="student"
+          value={studentId}
+          onChange={e => setStudentId(e.target.value)}
+        >
+          <option value="">Select student</option>
+          {students.map(s => (
+            <option key={s.id} value={String(s.id)}>
+              {s.name}
+            </option>
+          ))}
         </select>
-      </label>
+      </div>
 
-      <label>
-        Course
-        <select value={courseName} onChange={e => setCourseName(e.target.value)}>
-          <option value="">-- select course --</option>
-          {courses.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+      <div>
+        <label htmlFor="course">Course</label>
+        <select
+          id="course"
+          value={courseId}
+          onChange={e => setCourseId(e.target.value)}
+        >
+          <option value="">Select course</option>
+          {courses.map(c => (
+            <option key={c.id} value={String(c.id)}>
+              {c.name}
+            </option>
+          ))}
         </select>
-      </label>
+      </div>
 
-      <label>
-        Score
-        <input value={score} onChange={e => setScore(e.target.value)} placeholder="0 - 100" />
-      </label>
+      <div>
+        <label htmlFor="score">Score</label>
+        <input
+          id="score"
+          type="number"
+          step="0.01"
+          value={score}
+          onChange={e => setScore(e.target.value)}
+        />
+      </div>
 
-      <div className="form-actions">
-        <button type="submit" disabled={saving}>{saving ? 'Saving...' : gradeId ? 'Update Grade' : 'Add Grade'}</button>
-        <button type="button" onClick={() => { setGradeId(''); setStudentId(''); setCourseName(''); setScore(''); clearSelected && clearSelected(); }}>Clear</button>
+      <div>
+        <button type="submit">Add Grade</button>
+        <button
+          type="button"
+          onClick={() => {
+            setStudentId('');
+            setCourseId('');
+            setScore('');
+          }}
+        >
+          Clear
+        </button>
       </div>
     </form>
   );

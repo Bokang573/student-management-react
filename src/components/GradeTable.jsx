@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getGrades, deleteGrade } from '../services/api';
+import { getGrades, deleteGrade } from '../api';
 
 function formatDate(isoString) {
   if (!isoString) return '';

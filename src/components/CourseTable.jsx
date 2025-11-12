@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCourses } from '../services/api';
+import { getCourses } from '../api';
 
 export default function CourseTable({ refreshTrigger }) {
   const [courses, setCourses] = useState([]);
@@ -35,7 +35,7 @@ export default function CourseTable({ refreshTrigger }) {
             <tr key={c.id}>
               <td>{c.name}</td>
               <td>
-                {/* Add course actions here if needed */}
+                {/*  */}
               </td>
             </tr>
           ))}

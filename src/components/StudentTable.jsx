@@ -1,5 +1,5 @@
 import React from 'react';
-import { deleteStudent } from '../services/api';
+import { deleteStudent } from '../api';
 
 function formatDate(isoString) {
   if (!isoString) return '';

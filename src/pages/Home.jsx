@@ -5,7 +5,7 @@ import {
   getGrades,
   getAverages,
   exportGrades
-} from '../services/api';
+} from '../api';
 
 import StudentForm from '../components/StudentForm';
 import StudentTable from '../components/StudentTable';
@@ -19,10 +19,8 @@ export default function Home() {
   const [courses, setCourses] = useState([]);
   const [grades, setGrades] = useState([]);
   const [averages, setAverages] = useState(null);
-
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedGrade, setSelectedGrade] = useState(null);
-
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -58,16 +56,17 @@ export default function Home() {
   };
 
   return (
-    <div className="app">
+    <div className="app" style={{ padding: 20, background: '#f5f5f5', color: '#222' }}>
       <header className="header">
-        <h1>Student Management</h1>
-        <div className="actions">
+        <h1>Student Management System</h1>
+        <div className="actions" style={{ marginTop: 10 }}>
           <button onClick={() => exportGrades()}>Export Grades CSV</button>
           <button onClick={loadAverages}>Show Averages</button>
+          <button onClick={refreshAll}>Refresh</button>
         </div>
       </header>
 
-      <main>
+      <main style={{ marginTop: 20 }}>
         <section className="panel">
           <h2>Add / Edit Student</h2>
           <StudentForm
@@ -79,24 +78,22 @@ export default function Home() {
         </section>
 
         <section className="panel">
-          <h2>Students {loading ? ' (loading...)' : ''}</h2>
+          <h2>Students {loading ? ' (Loading...)' : ''}</h2>
           <StudentTable
             students={students}
-            onEdit={(s) => setSelectedStudent(s)}
+            onEdit={s => setSelectedStudent(s)}
             refresh={triggerRefresh}
           />
         </section>
 
         <section className="panel">
           <h2>Courses</h2>
-          <div className="small-note">Create new courses and view current list</div>
           <CourseForm refresh={triggerRefresh} />
           <CourseTable refreshTrigger={refreshKey} />
         </section>
 
         <section className="panel">
           <h2>Grades</h2>
-          <div className="small-note">Add or edit grades and review all records</div>
           <GradeForm
             selected={selectedGrade}
             clearSelected={() => setSelectedGrade(null)}
@@ -104,34 +101,37 @@ export default function Home() {
           />
           <GradeTable
             refreshTrigger={refreshKey}
-            onEdit={(g) => setSelectedGrade(g)}
+            onEdit={g => setSelectedGrade(g)}
           />
         </section>
 
         {averages && (
           <section className="panel">
-            <h2>Averages</h2>
-
+            <h2>Average Scores</h2>
             <div>
               <strong>Student Averages</strong>
-              {averages.studentAverages && averages.studentAverages.length === 0 && <div className="muted">No student averages</div>}
-              {averages.studentAverages && averages.studentAverages.map(s => (
-                <div key={s.student}><strong>{s.student}</strong>: {Number(s.average_score).toFixed(2)}</div>
+              {averages.studentAverages?.map(s => (
+                <div key={s.student}>
+                  {s.student}: {Number(s.average_score).toFixed(2)}
+                </div>
               ))}
             </div>
-
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 10 }}>
               <strong>Course Averages</strong>
-              {averages.courseAverages && averages.courseAverages.length === 0 && <div className="muted">No course averages</div>}
-              {averages.courseAverages && averages.courseAverages.map(c => (
-                <div key={c.course}><strong>{c.course}</strong>: {Number(c.average_score).toFixed(2)}</div>
+              {averages.courseAverages?.map(c => (
+                <div key={c.course}>
+                  {c.course}: {Number(c.average_score).toFixed(2)}
+                </div>
               ))}
             </div>
           </section>
         )}
       </main>
 
-      <footer className="footer">Local backend: http://localhost:3000</footer>
+      <footer style={{ marginTop: 40 }}>
+        <hr />
+        <p>Local backend: http://localhost:3000</p>
+      </footer>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { addStudent, updateStudent } from '../services/api';
+import { addStudent, updateStudent } from '../api';
 
 export default function StudentForm({ selected, clearSelected, refresh, courses = [] }) {
   const [id, setId] = useState('');

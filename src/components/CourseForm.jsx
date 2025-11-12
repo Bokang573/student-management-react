@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { addCourse } from '../services/api';
+import { addCourse } from '../api';
 
 export default function CourseForm({ refresh }) {
   const [name, setName] = useState('');
