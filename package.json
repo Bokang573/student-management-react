@@ -1,20 +1,19 @@
 {
   "name": "student-management-react",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node server.js",
+    "prebuild": "echo \"Building for Netlify\"",
     "lint": "eslint ."
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "mysql2": "^3.15.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -29,17 +28,16 @@
     "globals": "^16.4.0",
     "vite": "^7.1.7"
   },
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "server.js",
-  "keywords": [],
-  "author": "",
+  "description": "Frontend for the Student Management System built with React and Vite.",
+  "keywords": ["react", "vite", "student-management"],
+  "author": "Bokang Ntsalong",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bokang573/student-management-react.git"
+    "url": "https://github.com/Bokang573/student-management-react.git"
   },
   "bugs": {
     "url": "https://github.com/Bokang573/student-management-react/issues"
   },
-  "homepage": "https://github.com/Bokang573/student-management-react#readme"
+  "homepage": "https://bokang573.github.io/student-management-react"
 }
