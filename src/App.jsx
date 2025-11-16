@@ -12,7 +12,7 @@ import {
   addGrade,
   deleteGrade,
   updateGrade,
-} from "./api";
+} from "./pages/api";
 import "./styles.css";
 
 export default function App() {
